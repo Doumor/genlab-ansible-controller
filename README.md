@@ -42,7 +42,7 @@ Now you need to change inventory file with actual ip (see in yandex cloud webui)
 
 ```
 $ nano inventory.yml
-``
+```
 
 ### Apply ansible role
 
