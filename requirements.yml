@@ -1,0 +1,33 @@
+---
+# Ansible external role requirements
+roles:
+  - name: fail2ban
+    version: v4.0.9
+    src: https://github.com/Oefenweb/ansible-fail2ban.git
+
+  - name: genlab.ufw
+    src: https://github.com/corvus-migratorius/ansible-ufw.git
+
+  - name: genlab.sshd
+    src: https://github.com/corvus-migratorius/ansible-sshd.git
+
+  - name: genlab.users
+    src: https://github.com/corvus-migratorius/ansible-sshd.git
+
+  - name: genlab.miniforge
+    src: https://github.com/corvus-migratorius/ansible-miniforge.git
+
+  - name: genlab.swapfile
+    src: https://github.com/corvus-migratorius/ansible-swapfile.git
+
+  - name: genlab.node_exporter
+    src: https://github.com/corvus-migratorius/ansible-node-exporter.git
+
+  - name: genlab.promtail
+    src: https://github.com/corvus-migratorius/ansible-promtail.git
+
+  - name: genlab.docker_ubuntu
+    src: https://github.com/corvus-migratorius/ansible-docker-ubuntu.git
+
+  - name: genlab.ansible-rclone-yandex
+    src: https://github.com/corvus-migratorius/ansible-rclone-yandex.git

@@ -1,0 +1,5 @@
+app:
+  hosts:
+    genlab-ansible-controller:
+      ansible_host: 89.169.135.167
+      ansible_user: ubuntu

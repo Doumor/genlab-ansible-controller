@@ -1,0 +1,101 @@
+---
+- name: "Genlab ansible controller host"
+  hosts: genlab-ansible-controller
+  become: true
+  become_method: ansible.builtin.sudo
+
+  pre_tasks:
+    - name: "Remove 'unattended-upgrades' to avoid unpredictable interference with apt"
+      ansible.builtin.apt:
+        name: unattended-upgrades
+        state: absent
+
+    - name: "Install basic tools"
+      ansible.builtin.apt:
+        name:
+          - acl
+          - git
+          - htop
+          - iftop
+          - iotop
+          - nano
+        update_cache: true
+        cache_valid_time: 3600
+        autoremove: true
+        autoclean: true
+
+    - name: "Set the hostname to genlab-ansible-controller"
+      tags: [ hostname ]
+      ansible.builtin.hostname:
+        name: "genlab-ansible-controller"
+
+  roles:
+    - role: genlab.ufw
+      tags: [ ufw ]
+      limit_ssh: false
+      rules:
+        - rule: allow
+          port: 22
+
+    - role: genlab.sshd
+      tags: [ sshd ]
+      password_auth: false
+
+    - role: fail2ban
+      tags: [ fail2ban ]
+      fail2ban_services:
+        - name: sshd
+          maxretry: 6
+          bantime: 900  # 15 minutes
+          ignoreips:
+            - "93.175.0.0/19" # 93.175.0.0/19 (MIPT-TELECOM-NET)
+           # - "178.134.154.160" ?
+
+    # - role: genlab.users
+    #   tags: [ users ]
+    #   def_pw_path: "../secrets/user-password.default.yml"
+    #   users:
+    #     - name: "office-app"
+    #       uid: 2001
+    #       full_name: "user for office app"
+    #       state: "present"
+    #       create_home: true
+    #       shell: "/sbin/nologin"
+    #
+    # - role: genlab.ansible-rclone-yandex
+    #   tags: [ rclone ]
+    #   rclone_mountpoint: /mnt/yandex-disk
+    #   rclone_group: yandex
+    #   rclone_secrets: ../secrets/rclone-token.yml
+
+    - role: genlab.node_exporter
+      tags: [ node_exporter ]
+      node_exp_ver: "1.8.2"
+
+#    - role: genlab.promtail
+#      tags: [ promtail ]
+#      promtail_version: "2.9.8"
+#      promtail_http_port: 9080
+#      loki_server: "10.5.0.200"
+#      loki_port: 3100
+
+  # post_tasks:
+  #   - name: "Copy encrypted files to office-app host"
+  #     ansible.builtin.copy:
+  #       src: "{{ item }}"
+  #       dest: "app-folder"
+  #       mode: '0600'
+  #       owner: office-app
+  #       group: office-app
+  #     with_items:
+  #       - "../secrets/credentials.json"
+  #       - "../secrets/service_account.json"
+  #
+  #   - name: "Set up cron job for runner.py"
+  #     ansible.builtin.cron:
+  #       name: "Run runner.py every hour"
+  #       user: office-app
+  #       weekday: "*"
+  #       minute: "0"
+  #       hour: "*"
+  #       job: "python /app_folder/runner.py"
