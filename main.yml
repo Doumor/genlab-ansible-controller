@@ -1,6 +1,6 @@
 ---
 - name: "Genlab ansible controller host"
-  hosts: genlab-ansible-controller
+  hosts: all
   become: true
   become_method: ansible.builtin.sudo
 
@@ -24,32 +24,38 @@
         autoremove: true
         autoclean: true
 
-    - name: "Set the hostname to genlab-ansible-controller"
-      tags: [ hostname ]
-      ansible.builtin.hostname:
-        name: "genlab-ansible-controller"
+    - name: "Create ansible user"
+      ansible.builtin.user:
+        name: "ansible"
+        state: present
+        create_home: true
+
+#    - name: "Set the hostname to genlab-ansible-controller"
+#      tags: [ hostname ]
+#      ansible.builtin.hostname:
+#        name: "genlab-ansible-controller"
 
   roles:
-    - role: genlab.ufw
-      tags: [ ufw ]
-      limit_ssh: false
-      rules:
-        - rule: allow
-          port: 22
+#    - role: genlab.ufw
+#      tags: [ ufw ]
+#      limit_ssh: false
+#      rules:
+#        - rule: allow
+#          port: 22
 
-    - role: genlab.sshd
-      tags: [ sshd ]
-      password_auth: false
+#    - role: genlab.sshd
+#      tags: [ sshd ]
+#      password_auth: false
 
-    - role: fail2ban
-      tags: [ fail2ban ]
-      fail2ban_services:
-        - name: sshd
-          maxretry: 6
-          bantime: 900  # 15 minutes
-          ignoreips:
-            - "93.175.0.0/19" # 93.175.0.0/19 (MIPT-TELECOM-NET)
-           # - "178.134.154.160" ?
+#    - role: fail2ban
+#      tags: [ fail2ban ]
+#      fail2ban_services:
+#        - name: sshd
+#          maxretry: 6
+#          bantime: 900  # 15 minutes
+#          ignoreips:
+#            - "93.175.0.0/19" # 93.175.0.0/19 (MIPT-TELECOM-NET)
+#           # - "178.134.154.160" ?
 
     # - role: genlab.users
     #   tags: [ users ]
@@ -68,9 +74,19 @@
     #   rclone_group: yandex
     #   rclone_secrets: ../secrets/rclone-token.yml
 
-    - role: genlab.node_exporter
-      tags: [ node_exporter ]
-      node_exp_ver: "1.8.2"
+#    - role: genlab.node_exporter
+#      tags: [ node_exporter ]
+#      node_exp_ver: "1.8.2"
+
+    - role: genlab.miniforge
+      release_version: 24.7.1-2
+      users:
+        - name: "ansible"
+          mamba_envs: [ genlab-ansible-controller.yml ]
+      manifest_dir: "./configuration/mamba"
+      create_envs: true
+      condarc:
+        channels: [ conda-forge ]
 
 #    - role: genlab.promtail
 #      tags: [ promtail ]
