@@ -1,58 +1,71 @@
 # Genlab ansible controller
 
-This is repo for configure our ansible controller.
+This is repo for deploying our Ansible controller.
 
-## Local test
+## Test locally
 
+```bash
+molecule test
 ```
-$ molecule test
-```
+
 WARNING: configure molecule by youself.
 
-It will create docker container and run playbook (main.yml) with roles (requirements.yml).
+This will create a Docker container and run the playbook (`main.yml`) with roles (`requirements.yml`).
 
+```bash
+molecule login
 ```
-$ molecule login
-```
-Login into container.
+Log into container and have a look around.
 
-## Yandex Cloud with Terraform and ansible
+## Yandex Cloud with Terraform and Ansible
 
 ### Get API keys
 
-Go to yandex wiki... Install `yc` and make it work.
-https://yandex.cloud/ru/docs/tutorials/infrastructure-management/terraform-quickstart
+Install the `yc` tool from Yandex and configure it properly. Visit Yandex Cloud documentation for exact steps
+[here](https://yandex.cloud/ru/docs/tutorials/infrastructure-management/terraform-quickstart).
 
-Change main.tf values (for ex. folder-id, see in yandex cloud webui).
+Set variables in `main.tf` to correct values (e.g., set `folder-id` to the string ID deisplay in the Cloud's  web UI).
 
-### Run terraform
+### Configure the SSH key
 
+In order to be able to log into the host, we need to push an SSH public key. The default path is set to `~/.ssh/tf_key`, change this as needed.
+
+### Run Terraform
+
+Take a look at the output of a dry run:
+
+```bash
+terraform plan
 ```
-$ tf plan
-$ tf apply
+
+Notice which resources are going to be created. Make sure nothing gets modified or destroyed unless you are re-creating a pre-existing setup.
+
+```bash
+terraform apply
 ```
 
-Now hardware (and even network) is alive.
-
-By default it using key ~/.ssh/tf_key (change it, if needed or create link)
+This deploys virtual network and the host machine.
 
 ### Change inventory
 
-Now you need to change inventory file with actual ip (see in yandex cloud webui).
+Now set the external IP address of the node in `inventory.yml`.
 
-```
-$ nano inventory.yml
-```
+### Apply Ansible role
 
-### Apply ansible role
-
-```
-$ ansible-playbook main.yml --private-key=~/.ssh/tf_key
+```bash
+ansible-playbook main.yml --private-key=~/.ssh/tf_key
 ```
 
-### Time to dead
+### Destroy
 
-When work done (mostly not) do:
+Removing the setup is as simple as (review carefully):
+
+```bash
+terraform plan
 ```
-$ tf destroy
+
+...followed by:
+
+```bash
+terraform destroy
 ```
