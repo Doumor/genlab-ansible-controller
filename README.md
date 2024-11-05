@@ -34,7 +34,7 @@ $ tf apply
 
 Now hardware (and even network) is alive.
 
-By default it using key ~/.ssh/tf_key (change it, it need or create link)
+By default it using key ~/.ssh/tf_key (change it, if needed or create link)
 
 ### Change inventory
 
